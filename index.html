@@ -165,12 +165,11 @@ nav{
 }
 @media(min-width:600px){
   .port-grid{grid-template-columns:1fr 1fr}
-  .port-card.featured-card{grid-column:1/-1}
 }
 @media(min-width:1024px){
   #portfolio .port-header{padding:20px 40px 0}
   .filter-row{padding:0 40px 16px}
-  .port-grid{padding:0 40px;grid-template-columns:repeat(3,1fr);gap:16px}
+  .port-grid{padding:0 40px;grid-template-columns:1fr 1fr;gap:16px}
 }
 .port-card{
   background:var(--s1);border:1px solid var(--border);border-radius:16px;
@@ -485,30 +484,6 @@ const PORTFOLIO = [
     year: "2025",
     url: "https://t.me/gaintech_bot",
     image: "https://karimovkarimj85-hue.github.io/gaintech-portfolio/photo_2026-04-10_09-52-44.jpg"
-  },
-  {
-    id: 2,
-    type: "other",
-    featured: true,
-    title: "Linko CRM",
-    desc: "CRM-система для отдела продаж. Управление сделками, клиентами, воронкой и аналитикой.",
-    tech: ["React", "Node.js", "PostgreSQL"],
-    year: "2024",
-    url: "https://app.linko.uz",
-    demo: "Логин: admin / Пароль: 5141",
-    image: "https://karimovkarimj85-hue.github.io/gaintech-portfolio/Linko.png"
-  },
-  {
-    id: 3,
-    type: "other",
-    featured: false,
-    title: "RITM — CRM для дистрибуции",
-    desc: "Система управления дистрибуцией: маршруты, агенты, заказы, отчёты в реальном времени.",
-    tech: ["Next.js", "REST API", "PostgreSQL"],
-    year: "2024",
-    url: "https://next.ritm.uz",
-    demo: "Логин: admin / Пароль: 123",
-    image: "https://karimovkarimj85-hue.github.io/gaintech-portfolio/Ritm.png"
   },
 ];
 
