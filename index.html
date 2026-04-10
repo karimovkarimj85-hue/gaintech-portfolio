@@ -460,7 +460,7 @@ const PORTFOLIO = [
   // },
 
   // ПРИМЕР (удали когда добавишь реальные):
-  {
+ {
     id: 1,
     type: "bot",
     featured: true,
@@ -573,49 +573,119 @@ function setType(type){
   document.getElementById('consultFields').style.display = type==='consult' ? 'block' : 'none';
 }
 
-function submitForm(){
+// ══════════════════════════════════════
+//  TELEGRAM CONFIG
+// ══════════════════════════════════════
+const BOT_TOKEN = '8747555857:AAE1SP0bcIsEMaezmf-MunzDxiIozgmLFak';
+const CHANNEL_ID = '-1003692525683';
+const TG_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
+const serviceNames = {
+  bot: 'Telegram-бот', site: 'Сайт / лендинг',
+  crm: 'CRM-система', ai: 'AI-решение', auto: 'Автоматизация', '': 'Не указано'
+};
+const budgetNames = {
+  '50-100':'$50–$100','100-200':'$100–$200',
+  '200-500':'$200–$500','500+':'$500+','':'Не указано'
+};
+
+async function sendToTelegram(text){
+  const res = await fetch(TG_API, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      chat_id: CHANNEL_ID,
+      text: text,
+      parse_mode: 'HTML'
+    })
+  });
+  const data = await res.json();
+  if(!data.ok) throw new Error(data.description || 'Telegram error');
+}
+
+function now(){
+  return new Date().toLocaleString('ru-RU',{
+    timeZone:'Asia/Tashkent',
+    day:'2-digit',month:'2-digit',year:'numeric',
+    hour:'2-digit',minute:'2-digit'
+  });
+}
+
+async function submitForm(){
   const btn = document.getElementById('submitBtn');
 
-  let payload = {type: formType};
+  // Получаем данные формы
+  let name, phone, msgText;
 
   if(formType === 'order'){
-    const name = document.getElementById('fName').value.trim();
-    const phone = document.getElementById('fPhone').value.trim();
+    name = document.getElementById('fName').value.trim();
+    phone = document.getElementById('fPhone').value.trim();
     const service = document.getElementById('fService').value;
     const desc = document.getElementById('fDesc').value.trim();
     const budget = document.getElementById('fBudget').value;
-    if(!name || !phone){
-      document.getElementById('fName').style.borderColor = !name ? '#f87171' : '';
-      document.getElementById('fPhone').style.borderColor = !phone ? '#f87171' : '';
-      return;
-    }
-    payload = {...payload, name, phone, service, desc, budget};
+
+    if(!name){ document.getElementById('fName').style.borderColor='#f87171'; document.getElementById('fName').focus(); return; }
+    if(!phone){ document.getElementById('fPhone').style.borderColor='#f87171'; document.getElementById('fPhone').focus(); return; }
+    document.getElementById('fName').style.borderColor='';
+    document.getElementById('fPhone').style.borderColor='';
+
+    msgText = `#заказ #сайт
+━━━━━━━━━━━━━━━━━━
+👤 <b>Имя:</b> ${name}
+📞 <b>Телефон:</b> ${phone}
+🛠 <b>Услуга:</b> ${serviceNames[service]||'Не указано'}
+📋 <b>Задача:</b> ${desc||'Не описана'}
+💰 <b>Бюджет:</b> ${budgetNames[budget]||'Не указано'}
+🌐 <b>Источник:</b> Сайт (браузер)
+🕐 <b>Время:</b> ${now()}
+━━━━━━━━━━━━━━━━━━`;
+
   } else {
-    const name = document.getElementById('cName').value.trim();
-    const phone = document.getElementById('cPhone').value.trim();
+    name = document.getElementById('cName').value.trim();
+    phone = document.getElementById('cPhone').value.trim();
     const question = document.getElementById('cQuestion').value.trim();
-    if(!name || !phone){
-      document.getElementById('cName').style.borderColor = !name ? '#f87171' : '';
-      document.getElementById('cPhone').style.borderColor = !phone ? '#f87171' : '';
-      return;
-    }
-    payload = {...payload, name, phone, question};
+
+    if(!name){ document.getElementById('cName').style.borderColor='#f87171'; document.getElementById('cName').focus(); return; }
+    if(!phone){ document.getElementById('cPhone').style.borderColor='#f87171'; document.getElementById('cPhone').focus(); return; }
+    document.getElementById('cName').style.borderColor='';
+    document.getElementById('cPhone').style.borderColor='';
+
+    msgText = `#консультация #сайт
+━━━━━━━━━━━━━━━━━━
+👤 <b>Имя:</b> ${name}
+📞 <b>Телефон:</b> ${phone}
+💬 <b>Вопрос:</b> ${question||'Не указан'}
+🌐 <b>Источник:</b> Сайт (браузер)
+🕐 <b>Время:</b> ${now()}
+━━━━━━━━━━━━━━━━━━`;
   }
 
   btn.disabled = true;
   btn.textContent = 'Отправляем...';
 
-  // Отправка в бот через Telegram WebApp
-  if(tg){
-    tg.sendData(JSON.stringify(payload));
-  }
+  try {
+    // Если открыто в Telegram — используем WebApp
+    if(tg && tg.initData){
+      tg.sendData(JSON.stringify({type:formType, name, phone}));
+    }
+    // В любом случае шлём напрямую в канал
+    await sendToTelegram(msgText);
 
-  // Показываем успех через 600ms
-  setTimeout(()=>{
     document.getElementById('formState').style.display='none';
     document.getElementById('successState').style.display='block';
-    setTimeout(closeModal, 3000);
-  }, 600);
+    setTimeout(closeModal, 3500);
+
+  } catch(err) {
+    console.error(err);
+    btn.disabled = false;
+    btn.textContent = 'Попробовать снова';
+    btn.style.background = '#f87171';
+    btn.style.color = '#fff';
+    setTimeout(()=>{
+      btn.style.background='';btn.style.color='';
+      btn.textContent='Отправить заявку';
+    }, 3000);
+  }
 }
 
 // Закрытие по Telegram Back Button
