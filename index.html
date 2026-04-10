@@ -258,8 +258,8 @@ nav{
 <nav>
   <div class="nav-logo">Gain Tech</div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showSection('about')">О нас</button>
-    <button class="nav-tab" onclick="showSection('portfolio')">Работы</button>
+   <button class="nav-tab active" onclick="showSection('about', this)">О нас</button>
+<button class="nav-tab" onclick="showSection('portfolio', this)">Работы</button>
   </div>
 </nav>
 
@@ -486,11 +486,11 @@ const PORTFOLIO = [
 // ══════════════════════════════════════
 //  NAVIGATION
 // ══════════════════════════════════════
-function showSection(id){
+function showSection(id, el){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('visible'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(id).classList.add('visible');
-  event.currentTarget.classList.add('active');
+  el.classList.add('active'); // ← теперь надёжно
   if(id==='portfolio') renderPortfolio('all');
   window.scrollTo(0,0);
 }
